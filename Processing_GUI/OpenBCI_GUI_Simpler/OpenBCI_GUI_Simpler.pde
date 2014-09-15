@@ -100,8 +100,6 @@ boolean redrawScreenNow = true;
 int openBCI_byteCount = 0;
 int inByte = -1;    // Incoming serial data
 
-boolean sendToSpectrogram=false;
-
 //file writing variables
 //PrintWriter fileoutput;
 OutputFile_rawtxt fileoutput;
@@ -540,6 +538,7 @@ void processNewData() {
     ///add raw data to spectrogram...if the correct channel...
     //...look for the first channel that is active (meaning button is not active) or, if it
     //     hasn't yet sent any data, send the last channel even if the channel is off
+    boolean sendToSpectrogram = true;
     if (sendToSpectrogram & (isChannelActive(Ichan) | (Ichan == (nchan-1)))) { //send data to spectrogram
       sendToSpectrogram = false;  //prevent us from sending more data after this time through
       gui.tellGUIWhichChannelForSpectrogram(Ichan);
