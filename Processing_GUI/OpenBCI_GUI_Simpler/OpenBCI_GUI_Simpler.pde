@@ -334,7 +334,7 @@ void setup() {
   // initialize the minim and audioOut objects...specific to OpenBCI_GUI_Simpler
   minim = new Minim( this );
   audioOut   = minim.getLineOut(); 
-  wave = new Oscil( 200, 0.0, Waves.TRIANGLE );  // make the Oscil we will hear.  Arguments are frequency, amplitude, and waveform
+  wave = new Oscil( 440, 0.0f, Waves.SINE );  // make the Oscil we will hear.  Arguments are frequency, amplitude, and waveform
   wave.patch( audioOut );
   gui.setAudioOscillator(wave);
   
@@ -367,8 +367,11 @@ void draw() {
       processNewData();
 
       //try to detect the desired signals, do it in frequency space...for OpenBCI_GUI_Simpler
-      //detectInFreqDomain(fftBuff,inband_Hz,guard_Hz,detData_freqDomain);
-      //gui.setDetectionData_freqDomain(detData_freqDomain);
+      detectInFreqDomain(fftBuff,inband_Hz,guard_Hz,detData_freqDomain);
+      gui.setDetectionData_freqDomain(detData_freqDomain);
+      if (gui.detectButton.isActive()) {
+        actOnFreqDetection(detData_freqDomain);
+      }
 
       //tell the GUI that it has received new data via dumping new data into arrays that the GUI has pointers to
       gui.update(data_std_uV,data_elec_imp_ohm);
@@ -1120,12 +1123,14 @@ void deactivateChannel(int Ichan) {
 }
 
 void toggleDetectionState() {
+  println("OpenBCI_GUI: toggling detection state");
   gui.detectButton.setIsActive(!gui.detectButton.isActive());
   showFFTFilteringData = gui.detectButton.isActive();
   gui.showFFTFilteringData(showFFTFilteringData);
 }
 
 void toggleSpectrogramState() {
+  println("OpenBCI_GUI: toggling spectrogram state");
   gui.spectrogramButton.setIsActive(!gui.spectrogramButton.isActive());
   gui.setShowSpectrogram(gui.spectrogramButton.isActive());
 }
@@ -1266,6 +1271,21 @@ void detectInFreqDomain(FFT[] fftBuff,float[] inband_Hz, float[] guard_Hz, Detec
     results[Ichan].thresh_uV = (float)(guard_uV_rtHz * java.lang.Math.pow(10.0,fft_det_thresh_dB / 20.0f));
     results[Ichan].isDetected = isDetected;
   }
+}
+
+void actOnFreqDetection(DetectionData_FreqDomain[] results) {
+  float detectionAverage = 0.0;
+  int chanActiveCount = 0;
+  for (int Ichan = 0; Ichan < nchan; Ichan++) {
+    if (!gui.chanButtons[Ichan].isActive()) {
+      if (results[Ichan].isDetected) {
+        detectionAverage++;
+      }
+      chanActiveCount++;
+    }
+  }
+  detectionAverage = detectionAverage / (float)chanActiveCount;
+  wave.setAmplitude(detectionAverage);
 }
 
 void openNewLogFile() {

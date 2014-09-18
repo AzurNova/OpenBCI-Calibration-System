@@ -214,7 +214,7 @@ class Gui_Manager {
     //set the signal detection button...left of center
     w = stopButton.but_dx;
     h = stopButton.but_dy;
-    x = xoffset + (8 * (w + (int)(gutter_between_buttons*win_x)));
+    x = win_x - int(gutter_right*float(win_x)) - 3*w - (int)(2*gutter_between_buttons*win_x);
     //x = (int)(((float)win_x) / 2.0f - (float)w - (gutter_between_buttons*win_x)/2.0f);
     y = stopButton.but_y;
     detectButton = new Button(x,y,w,h,"Detect " + signalDetectName,fontInfo.buttonLabel_size);
@@ -222,7 +222,8 @@ class Gui_Manager {
     //set the show spectrogram button...right of center
     w = stopButton.but_dx;
     h = stopButton.but_dy;
-    x = (int)(((float)win_x) / 2.0f + (gutter_between_buttons*win_x)/2.0f);
+    x = win_x - int(gutter_right*float(win_x)) - 2*w - (int)(gutter_between_buttons*win_x);
+    //x = (int)(((float)win_x) / 2.0f + (gutter_between_buttons*win_x)/2.0f);
     y = stopButton.but_y;
     spectrogramButton = new Button(x,y,w,h,"Spectrogram",fontInfo.buttonLabel_size);
        
